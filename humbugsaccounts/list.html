@@ -1,0 +1,26 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">Daily list</div>
+  </div>
+  <table class="panel-body table table-striped">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Float</th>
+        <th>Cash in Drawer</th>
+        <th>Net</th>
+        <th>PD</th>
+        <th>Comments</th>
+      </tr>
+    </thead>
+    <tr ng-repeat="(itemDate, item) in stuff">
+
+      <td><a ng-click=editEntry(item)>{{item.date | date : "shortDate"}}</a></td>
+      <td>{{item.float | currency}}</td>
+      <td>{{item.cashInDrawer | currency}}</td>
+      <td>{{item.cashInDrawer - item.float | currency}}</td>
+      <td>{{item.pd | sumByKey:'amount' | currency}}</td>
+      <td>{{item.comments}}</td>
+    </tr>
+  </table>
+</div>
