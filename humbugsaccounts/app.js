@@ -20,7 +20,7 @@ app.service('dataService', function(dateFilter) {
     }
 
     this.getKey = function (entry) {
-        return dateKey(entry.date);
+        return this.dateKey(entry.date);
     }
 
     this.stuff = {};
