@@ -3,11 +3,23 @@ var app = angular.module('app', ['ngRoute', 'caco.feed.filter']);
 app.service('dataService', function(dateFilter) {
 
     this.findOne = function (key) {
+        if (!(key in this.stuff)) {
+
+            var entry = {
+                date: new Date(key),
+                float: null,
+                cashInDrawer: null,
+                pd: [],
+                comments: ""
+            };
+
+            this.stuff[key] = entry;
+        }
         return this.stuff[key];
     };
 
     this.findByDate = function (date) {
-        return this.stuff[key];
+        return this.findOne(this.dateKey(date));
     };
 
     this.update = function (entry) {
@@ -30,8 +42,6 @@ app.service('dataService', function(dateFilter) {
         date: new Date("2015-05-21"),
         cashInDrawer: 300.34,
         float: 150.00,
-        //net: 100.34,
-        z: 100.23, // optional
         pd: [
             {
                 who: "Fiona",
@@ -50,8 +60,6 @@ app.service('dataService', function(dateFilter) {
     {
         date: new Date("2015-05-22"),
         cashInDrawer: 312.18,
-        float: 150.34,
-        //net: 100.34,
         z: 100.23, // optional
         pd: [{
             who: "Courtney",
@@ -70,8 +78,6 @@ app.service('dataService', function(dateFilter) {
     {
         date: new Date("2015-05-23"),
         cashInDrawer: 200.34,
-        float: 100.00,
-        //net: 100.34,
         z: 100.23, // optional
         pd: [{
             who: "Fiona",
@@ -85,8 +91,6 @@ app.service('dataService', function(dateFilter) {
     {
         date: new Date("2015-05-24"),
         cashInDrawer: 200.34,
-        float: 100.00,
-        //net: 100.34,
         z: 100.23, // optional
         pd: [{
             who: "Fiona",
@@ -104,8 +108,6 @@ app.service('dataService', function(dateFilter) {
     {
         date: new Date("2015-05-25"),
         cashInDrawer: 200.34,
-        float: 100.00,
-        //net: 100.34,
         z: 100.23, // optional
         pd: [{
             who: "Fiona",
@@ -137,31 +139,35 @@ app.config(function($routeProvider) {
 
 app.controller('EditCtrl', function($scope, $location, $routeParams, dataService) {
 
-  $scope.data = dataService.findOne($routeParams.date);
+    $scope.$watch('currentDate', function (newValue, oldValue) {
+        $scope.save();
+        $scope.data = dataService.findByDate(newValue);
+    });
 
-  $scope.showList = function() {
-    $location.path('/list');
-  };
+    $scope.currentDate = new Date($routeParams.date);
 
-  $scope.next = function () {
-      dataService.update($scope.data);
-      var nextDay = new Date();
-      nextDay.setTime($scope.data.date.getTime() + 86400000);
-      var float = $scope.data.cashInDrawer;
-      var entry = {
-          date: nextDay,
-          cashInDrawer: null,
-          float: float,
-          z: 0,
-          pd: [],
-          comments: ""
-      };
+    $scope.showList = function() {
+        $location.path('/list');
+    };
 
-      dataService.update(entry);
-      $location.path('/edit/' + dataService.getKey(entry));
-  }
+    $scope.previous = function () {
+        addDays(-1);
+    };
 
+    $scope.next = function () {
+        addDays(1);
+    };
 
+    $scope.save = function () {
+        if ($scope.data != undefined)
+            dataService.update($scope.data);
+    }
+
+    function addDays(days) {
+        var newDate = new Date($scope.currentDate);
+        newDate.setTime(newDate.getTime() + (days * 86400000));
+        $scope.currentDate = newDate;
+    };
 });
 
 app.controller('ListCtrl', function($scope, $location, $filter, dataService) {
